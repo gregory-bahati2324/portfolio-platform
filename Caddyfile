@@ -1,0 +1,9 @@
+# Automatic HTTPS (Let's Encrypt). Set DOMAIN in .env, e.g. gregtech.example
+{$DOMAIN} {
+	encode zstd gzip
+	header Strict-Transport-Security "max-age=31536000; includeSubDomains"
+	reverse_proxy frontend:80
+}
+www.{$DOMAIN} {
+	redir https://{$DOMAIN}{uri} permanent
+}

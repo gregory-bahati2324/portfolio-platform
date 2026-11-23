@@ -1,0 +1,19 @@
+# Builds and publishes images when you push a version tag (git tag v1.0.0 && git push --tags).
+# UNTESTED TEMPLATE: it needs a registry login and a deploy step suited to your server.
+name: Release
+on:
+  push: { tags: ["v*"] }
+permissions: { contents: read, packages: write }
+jobs:
+  images:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with: { registry: ghcr.io, username: "${{ github.actor }}", password: "${{ secrets.GITHUB_TOKEN }}" }
+      - uses: docker/build-push-action@v6
+        with: { context: ./backend, push: true, tags: "ghcr.io/${{ github.repository }}/backend:${{ github.ref_name }}" }
+      - uses: docker/build-push-action@v6
+        with: { context: ./frontend, target: prod, push: true, tags: "ghcr.io/${{ github.repository }}/frontend:${{ github.ref_name }}" }
+      # Deploy: on the server run `docker compose -f docker-compose.prod.yml pull && ... up -d`
+      # (or add an SSH step using repository secrets).

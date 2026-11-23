@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* Runtime-overridable from Site Settings (Phase 3). #2563EB */
+  --brand: 37 99 235;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { @apply bg-surface font-sans text-body antialiased; }
+  :focus-visible { @apply outline-2 outline-offset-2 outline-brand; }
+}
+
+@keyframes drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(30px, -20px, 0) scale(1.08); }
+}
+.blob { animation: drift 14s ease-in-out infinite; }
+@media (prefers-reduced-motion: reduce) { .blob { animation: none; } html { scroll-behavior: auto; } }

@@ -1,0 +1,2 @@
+{ "name": "portfolio-e2e", "private": true, "type": "module",
+  "dependencies": { "@sparticuz/chromium": "*", "axe-core": "*", "playwright-core": "*" } }
