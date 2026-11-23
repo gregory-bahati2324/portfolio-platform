@@ -41,9 +41,8 @@ def create_token(user: AdminUser) -> str:
 def set_auth_cookies(response: Response, user: AdminUser) -> None:
     s = get_settings()
     age = s.access_token_minutes * 60
-    response.set_cookie(ACCESS_COOKIE, create_token(user), max_age=age, httponly=True, secure=s.cookie_secure, samesite="lax", path="/")
-    response.set_cookie(CSRF_COOKIE, secrets.token_urlsafe(32), max_age=age, httponly=False, secure=s.cookie_secure, samesite="lax", path="/")
-
+    response.set_cookie(ACCESS_COOKIE, create_token(user), max_age=age, httponly=True, secure=s.cookie_secure, samesite="none", path="/")
+    response.set_cookie(CSRF_COOKIE, secrets.token_urlsafe(32), max_age=age, httponly=False, secure=s.cookie_secure, samesite="none", path="/")
 
 def clear_auth_cookies(response: Response) -> None:
     response.delete_cookie(ACCESS_COOKIE, path="/")
