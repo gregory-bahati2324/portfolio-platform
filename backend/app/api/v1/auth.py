@@ -9,7 +9,7 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.core.ratelimit import RateLimiter
 from app.core.security import (
-    clear_auth_cookies, csrf_protect, current_admin, hash_password, set_auth_cookies, verify_password,
+    CSRF_COOKIE, clear_auth_cookies, csrf_protect, current_admin, hash_password, set_auth_cookies, verify_password,
 )
 from app.core.config import get_settings
 from app.models import AdminUser, PasswordResetToken
@@ -40,6 +40,24 @@ def login(data: LoginIn, request: Request, response: Response, db: Session = Dep
     set_auth_cookies(response, user)
     return user
 
+@router.get("/csrf")
+def get_csrf_token(request: Request, response: Response):
+    token = request.cookies.get(CSRF_COOKIE)
+
+    if not token:
+        token = secrets.token_urlsafe(32)
+        s = get_settings()
+        response.set_cookie(
+            CSRF_COOKIE,
+            token,
+            max_age=s.access_token_minutes * 60,
+            httponly=False,
+            secure=s.cookie_secure,
+            samesite="none",
+            path="/",
+        )
+
+    return {"csrf_token": token}
 
 @router.post("/logout", status_code=204)
 def logout(response: Response):
