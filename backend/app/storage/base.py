@@ -1,5 +1,6 @@
 from pathlib import Path
 from typing import Protocol
+from botocore.config import Config
 
 from app.core.config import get_settings
 
@@ -54,6 +55,8 @@ class S3Storage:
         self.client = boto3.client(
             "s3", endpoint_url=s.s3_endpoint_url or None,
             aws_access_key_id=s.s3_access_key_id, aws_secret_access_key=s.s3_secret_access_key,
+            region_name=s.s3_region,
+            config=Config(s3={"addressing_style": "path"}),
         )
 
     def save(self, key: str, data: bytes | Path, content_type: str) -> str:

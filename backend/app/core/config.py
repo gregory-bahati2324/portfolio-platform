@@ -43,6 +43,7 @@ class Settings(BaseSettings):
     s3_access_key_id: str = ""
     s3_secret_access_key: str = ""
     s3_public_base_url: str = ""  # public/CDN URL prefix for stored objects
+    s3_region: str = "eu-west-1"
 
     public_site_url: str = "http://localhost:5173"  # canonical origin for sitemap, links and emails
 
