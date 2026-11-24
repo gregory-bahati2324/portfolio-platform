@@ -4,6 +4,7 @@ from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy import text
 from sqlalchemy.orm import Session
+from app.services.gemini_health import check_gemini
 
 from app.core.db import get_db
 
@@ -26,3 +27,17 @@ def readiness(db: Session = Depends(get_db)):
             status_code=503, content={"status": "unavailable", "database": "down"}
         )
     return {"status": "ok", "database": "up"}
+
+
+
+@router.get("/gemini")
+def gemini_health(db: Session = Depends(get_db)):
+    result = check_gemini(db)
+
+    status_code = 200 if result["status"] in ("available", "disabled") else 503
+
+    return JSONResponse(
+        status_code=status_code,
+        content=result,
+    )
+

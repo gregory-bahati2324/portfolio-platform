@@ -111,3 +111,47 @@ def test_invalid_model_is_not_retried():
     assert exc.value.kind == "invalid"
     client.post.assert_not_called()
     sleep.assert_not_called()
+
+
+def test_model_health_check_succeeds_without_generating_content():
+    client = Mock()
+    client.get.return_value = make_response(
+        200,
+        {
+            "name": "models/gemini-2.5-flash",
+            "supportedGenerationMethods": ["generateContent"],
+        },
+    )
+
+    provider = GeminiProvider("test-key", client=client)
+
+    result = provider.check_model("gemini-2.5-flash")
+
+    assert result == "available"
+    assert client.get.call_count == 1
+    client.post.assert_not_called()
+
+    args, kwargs = client.get.call_args
+    assert args[0].endswith("/models/gemini-2.5-flash")
+    assert kwargs["headers"]["x-goog-api-key"] == "test-key"
+
+
+def test_model_health_check_rejects_unsupported_model():
+    client = Mock()
+    client.get.return_value = make_response(200, {
+        "name": "models/gemini-example",
+        "supportedGenerationMethods": ["countTokens"],
+    })
+
+    provider = GeminiProvider("test-key", client=client)
+
+    assert provider.check_model("gemini-example") == "invalid"
+
+
+def test_model_health_check_handles_network_failure():
+    client = Mock()
+    client.get.side_effect = httpx.ConnectError("Connection failed")
+
+    provider = GeminiProvider("test-key", client=client)
+
+    assert provider.check_model("gemini-2.5-flash") == "unavailable"

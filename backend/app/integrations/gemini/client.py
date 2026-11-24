@@ -203,3 +203,35 @@ class GeminiProvider:
             )
 
         return text
+
+    
+    def check_model(self, model: str, timeout: float = 5.0) -> str:
+        """Check model metadata without generating content."""
+        if not MODEL_RE.fullmatch(model):
+            return "invalid"
+
+        url = f"{self._base}/models/{quote(model, safe='')}"
+        headers = {"x-goog-api-key": self._key}
+
+        try:
+            response = self._client.get(
+                url,
+                headers=headers,
+                timeout=timeout,
+            )
+        except httpx.HTTPError:
+            return "unavailable"
+
+        if response.status_code == 404 or response.status_code == 400:
+            return "invalid"
+
+        if response.status_code != 200:
+            return "unavailable"
+
+        try:
+            data = response.json()
+            methods = data.get("supportedGenerationMethods", [])
+            return "available" if "generateContent" in methods else "invalid"
+        except (ValueError, AttributeError):
+            return "unavailable"
+
