@@ -29,7 +29,7 @@ class Settings(BaseSettings):
     gemini_model: str = "gemini-2.0-flash"
     gemini_max_output_tokens: int = 800
     gemini_temperature: float = 0.4
-    gemini_timeout_seconds: int = 20
+    gemini_timeout_seconds: int = 40
     gemini_api_base: str = "https://generativelanguage.googleapis.com/v1beta"  # override for a proxy or a local test double
 
     # Media storage
